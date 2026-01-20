@@ -1,35 +1,25 @@
-SRC_DIR := srcs
-OBJ_DIR := objs
-INC_DIR := incs
+NAME = ircserv
+CC = c++
+CFLAGS = -Wall -Wextra -Werror -std=c++98
 
-CXX := c++
-CXXFLAGS := -Wall -Wextra -Werror -std=c++98 -g3 -I$(INC_DIR)
+SRCS = main.cpp SRC/Authenti.cpp SRC/Channel.cpp SRC/Client.cpp SRC/Server.cpp \
+	CMD/INVITE.cpp CMD/JOIN.cpp CMD/KICK.cpp CMD/MODE.cpp CMD/PART.cpp CMD/PRIVMSG.cpp CMD/QUIT.cpp CMD/TOPIC.cpp 
 
-SRCS := $(shell find $(SRC_DIR) -type f -name "*.cpp")
-OBJS := $(patsubst $(SRC_DIR)/%,$(OBJ_DIR)/%,$(SRCS:.cpp=.o))
-DEPS := $(OBJS:.o=.d)
-
-NAME := ircserv
+OBJS = $(SRCS:.cpp=.o)
 
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	@$(CXX) $(CXXFLAGS) -o $@ $^
-	@echo "Build complete."
+	@$(CC) $(CFLAGS) -o $(NAME) $(OBJS)
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@mkdir -p $(dir $@)
-	@$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
-
--include $(DEPS)
+%.o: %.cpp INC/Server.hpp INC/Client.hpp INC/Channel.hpp INC/replies.hpp
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	@rm -rf $(OBJ_DIR)
-	@echo "Objects cleaned."
+	@rm -f $(OBJS)
 
 fclean: clean
 	@rm -f $(NAME)
-	@echo "Executable removed."
 
 re: fclean all
 
