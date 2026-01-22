@@ -23,9 +23,16 @@ void Server::getCmdArgs(std::string cmd,std::string& name, std::string& modeset 
 	std::istringstream stm(cmd);
 	stm >> name;
 	stm >> modeset;
-	size_t found = cmd.find_first_not_of(name + modeset + " \t\v");
-	if(found != std::string::npos)
-		params = cmd.substr(found);
+
+	// Read the rest of the line from the stream to preserve spacing inside parameters
+	std::string rest;
+	std::getline(stm, rest);
+	// Trim leading whitespace
+	size_t found = rest.find_first_not_of(" \t\v");
+	if (found != std::string::npos)
+		params = rest.substr(found);
+	else
+		params.clear();
 }
 
 
