@@ -90,7 +90,8 @@ void Server::set_nickname(std::string cmd, int fd)
 		{
 			std::string oldnick = cli->GetNickName();
 			cli->SetNickname(cmd);
-			for(size_t i = 0; i < channels.size(); i++){
+			for(size_t i = 0; i < channels.size(); i++)
+			{
 				Client *cl = channels[i].GetClientInChannel(oldnick);
 				if(cl)
 					cl->SetNickname(cmd);
@@ -129,11 +130,17 @@ void	Server::set_username(std::string& cmd, int fd)
 
 	Client *cli = GetClient(fd); 
 	if((cli && splited_cmd.size() < 5))
-		{_sendResponse(ERR_NOTENOUGHPARAM(cli->GetNickName()), fd); return; }
+	{
+		_sendResponse(ERR_NOTENOUGHPARAM(cli->GetNickName()), fd);
+		return;
+	}
 	if(!cli  || !cli->getRegistered())
 		_sendResponse(ERR_NOTREGISTERED(std::string("*")), fd);
 	else if (cli && !cli->GetUserName().empty())
-		{_sendResponse(ERR_ALREADYREGISTERED(cli->GetNickName()), fd); return;}
+	{
+		_sendResponse(ERR_ALREADYREGISTERED(cli->GetNickName()), fd);
+		return;
+	}
 	else
 		cli->SetUsername(splited_cmd[1]);
 	if(cli && cli->getRegistered() && !cli->GetUserName().empty() && !cli->GetNickName().empty() && cli->GetNickName() != "*"  && !cli->GetLogedIn())

@@ -1,6 +1,7 @@
 #include "../INC/Channel.hpp"
 
-Channel::Channel(){
+Channel::Channel()
+{
 	this->invit_only = 0;
 	this->topic = 0;
 	this->key = 0;
@@ -13,10 +14,17 @@ Channel::Channel(){
 		modes.push_back(std::make_pair(charaters[i],false));
 	this->created_at = "";
 }
-Channel::~Channel(){}
-Channel::Channel(Channel const &src){*this = src;}
-Channel &Channel::operator=(Channel const &src){
-	if (this != &src){
+
+Channel::~Channel()
+{}
+
+Channel::Channel(Channel const &src)
+{*this = src;}
+
+Channel &Channel::operator=(Channel const &src)
+{
+	if (this != &src)
+	{
 		this->invit_only = src.invit_only;
 		this->topic = src.topic;
 		this->key = src.key;
@@ -43,7 +51,9 @@ void Channel::SetPassword(std::string password){this->password = password;}
 void Channel::SetName(std::string name){this->name = name;}
 void Channel::set_topicRestriction(bool value){this->topic_restriction = value;}
 void Channel::setModeAtindex(size_t index, bool mode){modes[index].second = mode;}
-void Channel::set_createiontime(){
+
+void Channel::set_createiontime()
+{
 	std::time_t _time = std::time(NULL);
 	std::ostringstream oss;
 	oss << _time;
@@ -55,28 +65,43 @@ int Channel::GetInvitOnly(){return this->invit_only;}
 int Channel::GetTopic(){return this->topic;}
 int Channel::GetKey(){return this->key;}
 int Channel::GetLimit(){return this->limit;}
-int Channel::GetClientsNumber(){return this->clients.size() + this->admins.size();}
-bool Channel::Gettopic_restriction() const{return this->topic_restriction;}
-bool Channel::getModeAtindex(size_t index){return modes[index].second;}
+
+int Channel::GetClientsNumber()
+{
+	return this->clients.size() + this->admins.size();
+}
+
+bool Channel::Gettopic_restriction() const
+{return this->topic_restriction;}
+
+bool Channel::getModeAtindex(size_t index)
+{return modes[index].second;}
+
 bool Channel::clientInChannel(std::string &nick){
-	for(size_t i = 0; i < clients.size(); i++){
+	for(size_t i = 0; i < clients.size(); i++)
+	{
 		if(clients[i].GetNickName() == nick)
 			return true;
 	}
-	for(size_t i = 0; i < admins.size(); i++){
+	for(size_t i = 0; i < admins.size(); i++)
+	{
 		if(admins[i].GetNickName() == nick)
 			return true;
 	}
 	return false;
 }
+
 std::string Channel::GetTopicName(){return this->topic_name;}
 std::string Channel::GetPassword(){return this->password;}
 std::string Channel::GetName(){return this->name;}
 std::string Channel::GetTime(){return this->time_creation;}
 std::string Channel::get_creationtime(){return created_at;}
-std::string Channel::getModes(){
+
+std::string Channel::getModes()
+{
 	std::string mode;
-	for(size_t i = 0; i < modes.size(); i++){
+	for(size_t i = 0; i < modes.size(); i++)
+	{
 		if(modes[i].first != 'o' && modes[i].second)
 			mode.push_back(modes[i].first);
 	}
@@ -84,31 +109,41 @@ std::string Channel::getModes(){
 		mode.insert(mode.begin(),'+');
 	return mode;
 }
-std::string Channel::clientChannel_list(){
+
+std::string Channel::clientChannel_list()
+{
 	std::string list;
-	for(size_t i = 0; i < admins.size(); i++){
+	for(size_t i = 0; i < admins.size(); i++)
+	{
 		list += "@" + admins[i].GetNickName();
 		if((i + 1) < admins.size())
 			list += " ";
 	}
 	if(clients.size())
 		list += " ";
-	for(size_t i = 0; i < clients.size(); i++){
+	for(size_t i = 0; i < clients.size(); i++)
+	{
 		list += clients[i].GetNickName();
 		if((i + 1) < clients.size())
 			list += " ";
 	}
 	return list;
 }
-Client *Channel::get_client(int fd){
-	for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it){
+
+Client *Channel::get_client(int fd)
+{
+	for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it)
+	{
 		if (it->GetFd() == fd)
 			return &(*it);
 	}
 	return NULL;
 }
-Client *Channel::get_admin(int fd){
-	for (std::vector<Client>::iterator it = admins.begin(); it != admins.end(); ++it){
+
+Client *Channel::get_admin(int fd)
+{
+	for (std::vector<Client>::iterator it = admins.begin(); it != admins.end(); ++it)
+	{
 		if (it->GetFd() == fd)
 			return &(*it);
 	}
@@ -116,11 +151,13 @@ Client *Channel::get_admin(int fd){
 }
 Client* Channel::GetClientInChannel(std::string name)
 {
-	for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it){
+	for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it)
+	{
 		if (it->GetNickName() == name)
 			return &(*it);
 	}
-	for (std::vector<Client>::iterator it = admins.begin(); it != admins.end(); ++it){
+	for (std::vector<Client>::iterator it = admins.begin(); it != admins.end(); ++it)
+	{
 		if (it->GetNickName() == name)
 			return &(*it);
 	}
@@ -130,25 +167,37 @@ Client* Channel::GetClientInChannel(std::string name)
 //---------------//Methods
 void Channel::add_client(Client newClient){clients.push_back(newClient);}
 void Channel::add_admin(Client newClient){admins.push_back(newClient);}
-void Channel::remove_client(int fd){
-	for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it){
+
+void Channel::remove_client(int fd)
+{
+	for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it)
+	{
 		if (it->GetFd() == fd)
-			{clients.erase(it); break;}
+		{
+			clients.erase(it);
+			break;
+		}
 	}
 }
-void Channel::remove_admin(int fd){
+void Channel::remove_admin(int fd)
+{
 	for (std::vector<Client>::iterator it = admins.begin(); it != admins.end(); ++it){
 		if (it->GetFd() == fd)
-			{admins.erase(it); break;}
+		{
+			admins.erase(it);
+			break;
+		}
 	}
 }
 bool Channel::change_clientToAdmin(std::string& nick){
 	size_t i = 0;
-	for(; i < clients.size(); i++){
+	for(; i < clients.size(); i++)
+	{
 		if(clients[i].GetNickName() == nick)
 			break;
 	}
-	if(i < clients.size()){
+	if(i < clients.size())
+	{
 		admins.push_back(clients[i]);
 		clients.erase(i + clients.begin());
 		return true;
@@ -158,11 +207,13 @@ bool Channel::change_clientToAdmin(std::string& nick){
 
 bool Channel::change_adminToClient(std::string& nick){
 	size_t i = 0;
-	for(; i < admins.size(); i++){
+	for(; i < admins.size(); i++)
+	{
 		if(admins[i].GetNickName() == nick)
 			break;
 	}
-	if(i < admins.size()){
+	if(i < admins.size())
+	{
 		clients.push_back(admins[i]);
 		admins.erase(i + admins.begin());
 		return true;
@@ -183,12 +234,14 @@ void Channel::sendTo_all(std::string rpl1)
 }
 void Channel::sendTo_all(std::string rpl1, int fd)
 {
-	for(size_t i = 0; i < admins.size(); i++){
+	for(size_t i = 0; i < admins.size(); i++)
+	{
 		if(admins[i].GetFd() != fd)
 			if(send(admins[i].GetFd(), rpl1.c_str(), rpl1.size(),0) == -1)
 				std::cerr << "send() faild" << std::endl;
 	}
-	for(size_t i = 0; i < clients.size(); i++){
+	for(size_t i = 0; i < clients.size(); i++)
+	{
 		if(clients[i].GetFd() != fd)
 			if(send(clients[i].GetFd(), rpl1.c_str(), rpl1.size(),0) == -1)
 				std::cerr << "send() faild" << std::endl;

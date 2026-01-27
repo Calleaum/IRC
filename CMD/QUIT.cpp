@@ -3,14 +3,17 @@
 void FindQ(std::string cmd, std::string tofind, std::string &str)
 {
 	size_t i = 0;
-	for (; i < cmd.size(); i++){
-		if (cmd[i] != ' '){
+	for (; i < cmd.size(); i++)
+	{
+		if (cmd[i] != ' ')
+		{
 			std::string tmp;
 			for (; i < cmd.size() && cmd[i] != ' '; i++)
 				tmp += cmd[i];
 			if (tmp == tofind)
 				break;
-			else tmp.clear();
+			else
+				tmp.clear();
 		}
 	}
 	if (i < cmd.size())
@@ -28,8 +31,10 @@ std::string	SplitQuit(std::string cmd)
 	FindQ(cmd, str, reason);
 	if (reason.empty())
 		return std::string("Quit");
-	if (reason[0] != ':'){ //if the message does not start with ':'
-		for (size_t i = 0; i < reason.size(); i++){
+	if (reason[0] != ':')
+	{ //if the message does not start with ':'
+		for (size_t i = 0; i < reason.size(); i++)
+		{
 			if (reason[i] == ' ')
 				{reason.erase(reason.begin() + i, reason.end());break;}
 		}
@@ -48,16 +53,19 @@ void Server::QUIT(std::string cmd, int fd)
 			channels[i].remove_client(fd);
 			if (channels[i].GetClientsNumber() == 0)
 				channels.erase(channels.begin() + i);
-			else{
+			else
+			{
 				std::string rpl = ":" + GetClient(fd)->GetNickName() + "!~" + GetClient(fd)->GetUserName() + "@localhost QUIT " + reason + "\r\n";
 				channels[i].sendTo_all(rpl);
 			}
 		}
-		else if (channels[i].get_admin(fd)){
+		else if (channels[i].get_admin(fd))
+		{
 			channels[i].remove_admin(fd);
 			if (channels[i].GetClientsNumber() == 0)
 				channels.erase(channels.begin() + i);
-			else{
+			else
+			{
 				std::string rpl = ":" + GetClient(fd)->GetNickName() + "!~" + GetClient(fd)->GetUserName() + "@localhost QUIT " + reason + "\r\n";
 				channels[i].sendTo_all(rpl);
 			}

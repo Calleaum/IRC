@@ -88,7 +88,8 @@ void Server::mode_command(std::string& cmd, int fd)
 	}
 	else if (!channel->get_client(fd) && !channel->get_admin(fd))
 	{
-		senderror(442, GetClient(fd)->GetNickName(), channelName, GetClient(fd)->GetFd(), " :You're not on that channel\r\n"); return;
+		senderror(442, GetClient(fd)->GetNickName(), channelName, GetClient(fd)->GetFd(), " :You're not on that channel\r\n");
+		return;
 	}
 	else if (modeset.empty()) // response with the channel modes (MODE #channel)
 	{
