@@ -1,5 +1,19 @@
 #include "../INC/Channel.hpp"
 
+/* ************************************************************************** */
+/*                         CONSTRUCTORS / DESTRUCTOR                          */
+/* ************************************************************************** */
+
+/**
+ * @brief Constructeur par défaut - initialise un canal vide
+ * 
+ * Modes disponibles :
+ *   i - invite-only    : seuls les invités peuvent rejoindre
+ *   t - topic protected: seuls les opérateurs peuvent changer le topic
+ *   k - key            : mot de passe requis pour rejoindre
+ *   o - operator       : privilèges d'opérateur
+ *   l - limit          : limite du nombre d'utilisateurs
+ */
 Channel::Channel()
 {
 	this->invit_only = 0;
@@ -77,12 +91,19 @@ bool Channel::Gettopic_restriction() const
 bool Channel::getModeAtindex(size_t index)
 {return modes[index].second;}
 
+/**
+ * @brief Vérifie si un utilisateur est membre du canal
+ * @param nick Nickname de l'utilisateur à rechercher
+ * @return true si présent (client ou admin), false sinon
+ */
 bool Channel::clientInChannel(std::string &nick){
+	// Recherche dans la liste des clients normaux
 	for(size_t i = 0; i < clients.size(); i++)
 	{
 		if(clients[i].GetNickName() == nick)
 			return true;
 	}
+	// Recherche dans la liste des administrateurs
 	for(size_t i = 0; i < admins.size(); i++)
 	{
 		if(admins[i].GetNickName() == nick)
@@ -100,11 +121,13 @@ std::string Channel::get_creationtime(){return created_at;}
 std::string Channel::getModes()
 {
 	std::string mode;
+	// Parcours des modes actifs (sauf 'o' qui est par utilisateur)
 	for(size_t i = 0; i < modes.size(); i++)
 	{
 		if(modes[i].first != 'o' && modes[i].second)
 			mode.push_back(modes[i].first);
 	}
+	// Préfixe '+' si au moins un mode est actif
 	if(!mode.empty())
 		mode.insert(mode.begin(),'+');
 	return mode;
@@ -113,14 +136,17 @@ std::string Channel::getModes()
 std::string Channel::clientChannel_list()
 {
 	std::string list;
+	// Ajout des admins avec préfixe '@' (opérateur)
 	for(size_t i = 0; i < admins.size(); i++)
 	{
 		list += "@" + admins[i].GetNickName();
 		if((i + 1) < admins.size())
 			list += " ";
 	}
+	// Séparateur entre admins et clients
 	if(clients.size())
 		list += " ";
+	// Ajout des clients normaux (sans préfixe)
 	for(size_t i = 0; i < clients.size(); i++)
 	{
 		list += clients[i].GetNickName();
@@ -132,6 +158,7 @@ std::string Channel::clientChannel_list()
 
 Client *Channel::get_client(int fd)
 {
+	// Recherche d'un client par son file descriptor
 	for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it)
 	{
 		if (it->GetFd() == fd)
@@ -142,6 +169,7 @@ Client *Channel::get_client(int fd)
 
 Client *Channel::get_admin(int fd)
 {
+	// Recherche d'un admin par son file descriptor
 	for (std::vector<Client>::iterator it = admins.begin(); it != admins.end(); ++it)
 	{
 		if (it->GetFd() == fd)
@@ -149,13 +177,16 @@ Client *Channel::get_admin(int fd)
 	}
 	return NULL;
 }
+
 Client* Channel::GetClientInChannel(std::string name)
 {
+	// Recherche par nickname dans les clients
 	for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it)
 	{
 		if (it->GetNickName() == name)
 			return &(*it);
 	}
+	// Recherche par nickname dans les admins
 	for (std::vector<Client>::iterator it = admins.begin(); it != admins.end(); ++it)
 	{
 		if (it->GetNickName() == name)
@@ -191,11 +222,13 @@ void Channel::remove_admin(int fd)
 }
 bool Channel::change_clientToAdmin(std::string& nick){
 	size_t i = 0;
+	// Recherche du client par nickname
 	for(; i < clients.size(); i++)
 	{
 		if(clients[i].GetNickName() == nick)
 			break;
 	}
+	// Si trouvé : transfert vers la liste des admins
 	if(i < clients.size())
 	{
 		admins.push_back(clients[i]);
@@ -207,11 +240,13 @@ bool Channel::change_clientToAdmin(std::string& nick){
 
 bool Channel::change_adminToClient(std::string& nick){
 	size_t i = 0;
+	// Recherche de l'admin par nickname
 	for(; i < admins.size(); i++)
 	{
 		if(admins[i].GetNickName() == nick)
 			break;
 	}
+	// Si trouvé : rétrogradation vers la liste des clients
 	if(i < admins.size())
 	{
 		clients.push_back(admins[i]);
@@ -221,25 +256,42 @@ bool Channel::change_adminToClient(std::string& nick){
 	return false;
 
 }
-//---------------//Methods
-//---------------//SendToAll
+
+/* ************************************************************************** */
+/*                              BROADCAST METHODS                             */
+/* ************************************************************************** */
+
+/**
+ * @brief Envoie un message à tous les membres du canal
+ * @param rpl1 Message à diffuser
+ */
 void Channel::sendTo_all(std::string rpl1)
 {
+	// Envoi aux administrateurs du canal
 	for(size_t i = 0; i < admins.size(); i++)
 		if(send(admins[i].GetFd(), rpl1.c_str(), rpl1.size(),0) == -1)
 			std::cerr << "send() faild" << std::endl;
+	// Envoi aux clients normaux du canal
 	for(size_t i = 0; i < clients.size(); i++)
 		if(send(clients[i].GetFd(), rpl1.c_str(), rpl1.size(),0) == -1)
 			std::cerr << "send() faild" << std::endl;
 }
+
+/**
+ * @brief Envoie un message à tous les membres sauf l'expéditeur
+ * @param rpl1 Message à diffuser
+ * @param fd File descriptor de l'expéditeur à exclure
+ */
 void Channel::sendTo_all(std::string rpl1, int fd)
 {
+	// Envoi aux administrateurs (sauf l'expéditeur)
 	for(size_t i = 0; i < admins.size(); i++)
 	{
 		if(admins[i].GetFd() != fd)
 			if(send(admins[i].GetFd(), rpl1.c_str(), rpl1.size(),0) == -1)
 				std::cerr << "send() faild" << std::endl;
 	}
+	// Envoi aux clients normaux (sauf l'expéditeur)
 	for(size_t i = 0; i < clients.size(); i++)
 	{
 		if(clients[i].GetFd() != fd)
@@ -247,4 +299,3 @@ void Channel::sendTo_all(std::string rpl1, int fd)
 				std::cerr << "send() faild" << std::endl;
 	}
 }
-//---------------//SendToAll

@@ -1,5 +1,12 @@
 #include "../INC/Client.hpp"
 
+/* ************************************************************************** */
+/*                         CONSTRUCTORS / DESTRUCTOR                          */
+/* ************************************************************************** */
+
+/**
+ * @brief Constructeur par défaut - initialise un client non connecté
+ */
 Client::Client()
 {
 	this->nickname = "";
@@ -35,9 +42,16 @@ Client &Client::operator=(Client const &src)
 int Client::GetFd(){return this->fd;}
 bool Client::getRegistered(){return registered;}
 
+/**
+ * @brief Vérifie si le client a reçu une invitation pour un canal
+ * @param ChName Nom du canal à vérifier
+ * @return true si invité, false sinon
+ */
 bool Client::GetInviteChannel(std::string &ChName)
 {
+	// Parcours de la liste des invitations reçues
 	for (size_t i = 0; i < this->ChannelsInvite.size(); i++){
+		// Invitation trouvée pour ce canal
 		if (this->ChannelsInvite[i] == ChName)
 			return true;
 	}
@@ -68,16 +82,25 @@ void Client::setIpAdd(std::string ipadd){this->ipadd = ipadd;}
 //---------------//Methods
 void Client::clearBuffer(){buffer.clear();}
 
+/**
+ * @brief Ajoute une invitation de canal pour ce client
+ * @param chname Nom du canal pour lequel le client est invité
+ */
 void Client::AddChannelInvite(std::string &chname)
 {
 	ChannelsInvite.push_back(chname);
 }
+
+/**
+ * @brief Retire une invitation de canal
+ * @param chname Nom du canal dont l'invitation est retirée
+ */
 void Client::RmChannelInvite(std::string &chname)
 {
+	// Recherche et suppression de l'invitation
 	for (size_t i = 0; i < this->ChannelsInvite.size(); i++)
 	{
 		if (this->ChannelsInvite[i] == chname)
 			{this->ChannelsInvite.erase(this->ChannelsInvite.begin() + i); return;}
 	}
 }
-//---------------//Methods
