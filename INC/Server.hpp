@@ -19,7 +19,7 @@
 #include <ctime>
 #include "Client.hpp"
 #include "Channel.hpp"
-#include "replies.hpp"
+#include "Replies.hpp"
 
 
 #define RED "\e[1;31m"

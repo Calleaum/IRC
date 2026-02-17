@@ -66,7 +66,7 @@ void Channel::SetName(std::string name){this->name = name;}
 void Channel::set_topicRestriction(bool value){this->topic_restriction = value;}
 void Channel::setModeAtindex(size_t index, bool mode){modes[index].second = mode;}
 
-void Channel::set_createiontime()
+void Channel::set_creationtime()
 {
 	std::time_t _time = std::time(NULL);
 	std::ostringstream oss;
@@ -196,8 +196,11 @@ Client* Channel::GetClientInChannel(std::string name)
 }
 //---------------//Getters
 //---------------//Methods
-void Channel::add_client(Client newClient){clients.push_back(newClient);}
-void Channel::add_admin(Client newClient){admins.push_back(newClient);}
+void Channel::add_client(Client newClient)
+{clients.push_back(newClient);}
+
+void Channel::add_admin(Client newClient)
+{admins.push_back(newClient);}
 
 void Channel::remove_client(int fd)
 {

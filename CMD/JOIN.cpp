@@ -194,7 +194,7 @@ void Server::NotExistCh(std::vector<std::pair<std::string, std::string> >&token,
 	Channel newChannel;
 	newChannel.SetName(token[i].first);
 	newChannel.add_admin(*GetClient(fd));  // Créateur = opérateur
-	newChannel.set_createiontime();
+	newChannel.set_creationtime();
 	this->channels.push_back(newChannel);
 	// Notification de création au client
     _sendResponse(RPL_JOINMSG(GetClient(fd)->getHostname(),GetClient(fd)->getIpAdd(),newChannel.GetName()) + \

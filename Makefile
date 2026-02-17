@@ -12,7 +12,7 @@ all: $(NAME)
 $(NAME): $(OBJS)
 	@$(CC) $(CFLAGS) -o $(NAME) $(OBJS)
 
-%.o: %.cpp INC/Server.hpp INC/Client.hpp INC/Channel.hpp INC/replies.hpp
+%.o: %.cpp INC/Server.hpp INC/Client.hpp INC/Channel.hpp INC/Replies.hpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:

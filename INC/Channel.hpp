@@ -38,7 +38,7 @@ public:
 	void SetTime(std::string time);
 	void set_topicRestriction(bool value);
 	void setModeAtindex(size_t index, bool mode);
-	void set_createiontime();
+	void set_creationtime();
 	//---------------//Getters
 	int GetInvitOnly();
 	int GetTopic();
